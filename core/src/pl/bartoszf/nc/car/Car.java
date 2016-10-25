@@ -1,4 +1,4 @@
-package pl.bartoszf.nc.car;
+package pl.bartoszf.ncplus.car;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,6 +13,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Array;
+import pl.bartoszf.ncplus.Raycast;
+import pl.bartoszf.ncplus.neuro.Genome;
 
 
 public class Car {
@@ -20,12 +22,21 @@ public class Car {
 	Array<Tire> tires;
 	RevoluteJoint leftJoint, rightJoint;
 	public float[] inputs = new float[5];
-	public float[] outputs = new float[2];
+	World world;
+	public Genome genome;
 
 	public float drive;
 
-	public Car(World world, Vector2 pos) {
-		
+	Raycast r;
+	Raycast leftr;
+	Raycast rightr;
+	Raycast sleftr;
+	Raycast srightr;
+
+	public Car(World world, Vector2 pos, Genome g) {
+
+		this.world = world;
+		this.genome = g;
 		tires = new Array<Tire>();
 
 		BodyDef bodyDef = new BodyDef();
@@ -59,6 +70,8 @@ public class Car {
 		
 		body.createFixture(fixtureDef);
 		body.setTransform(pos,0);
+
+		body.setUserData(this);
 
 		RevoluteJointDef jointDef = new RevoluteJointDef();
 		jointDef.bodyA = body;
@@ -105,11 +118,17 @@ public class Car {
 		jointDef.localAnchorA.set(3, 8.5f);
 		rightJoint = (RevoluteJoint)world.createJoint(jointDef);
 		tires.add(tire);
+
+		r = new Raycast(this, 2);
+		leftr = new Raycast(this, 0);
+		rightr = new Raycast(this, 4);
+		sleftr = new Raycast(this, 1);
+		srightr = new Raycast(this, 3);
 	}
 
+
+
 	public void update(float dr, float ang) {
-		System.out.println("Inputs : " + Arrays.toString(inputs));
-		System.out.println("Outputs : " + Arrays.toString(outputs));
 		for (Tire tire : tires) {
 			tire.updateFriction();
 		}
@@ -131,5 +150,41 @@ public class Car {
 		
 		leftJoint.setLimits(newAngle, newAngle);
 		rightJoint.setLimits(newAngle, newAngle);
+	}
+
+	private void shootRays()
+	{
+		Vector2 forw = body.getWorldVector(new Vector2(0, 1));
+
+		Vector2 cpos = body.getPosition();
+		Vector2 rcent = new Vector2(forw).scl(4).add(cpos);
+		Vector2 sec = new Vector2(forw).scl(40).add(rcent);
+		Vector2 left = new Vector2(sec);
+		CarMath.rotate_point(left,rcent,30);
+		Vector2 right = new Vector2(sec);
+		CarMath.rotate_point(right,rcent,-30);
+		Vector2 sleft = new Vector2(sec);
+		CarMath.rotate_point(sleft,rcent,15);
+		Vector2 sright = new Vector2(sec);
+		CarMath.rotate_point(sright,rcent,-15);
+
+		world.rayCast(r, rcent , sec);
+		world.rayCast(leftr, rcent , left);
+		world.rayCast(rightr, rcent , right);
+		world.rayCast(sleftr, rcent , sleft);
+		world.rayCast(srightr, rcent , sright);
+	}
+
+	public void dispose()
+	{
+		world.destroyBody(body);
+		for(Tire t: tires)
+		{
+			world.destroyBody(t.body);
+			t.body.setUserData(null);
+			body=null;
+		}
+		body.setUserData(null);
+		body = null;
 	}
 }
