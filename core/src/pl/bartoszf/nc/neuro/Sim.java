@@ -20,6 +20,7 @@ public class Sim {
 
     public void step()
     {
+        numRunning = gen.genomes.size();
         for(int i=0;i<gen.genomes.size();i++)
         {
             Genome a = gen.genomes.get(i);
@@ -29,6 +30,8 @@ public class Sim {
                 numRunning--;
             }
         }
+
+        System.out.println(numRunning);
 
         if(numRunning <= 0)
         {

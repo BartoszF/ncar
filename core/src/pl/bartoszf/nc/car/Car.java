@@ -182,7 +182,7 @@ public class Car {
 		{
 			world.destroyBody(t.body);
 			t.body.setUserData(null);
-			body=null;
+			t.body=null;
 		}
 		body.setUserData(null);
 		body = null;

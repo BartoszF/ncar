@@ -47,13 +47,10 @@ public class Generation {
         for(int i=0;i<genomes.size();i++)
         {
             Genome g = genomes.get(i);
-            if(g.getScore() > maxFScore)
-            {
+            if (g.getScore() > maxFScore) {
                 maxFScore = g.getScore();
                 best[0] = g;
-            }
-            else if(g.getScore() > maxSScore)
-            {
+            } else if (g.getScore() > maxSScore) {
                 maxSScore = g.getScore();
                 best[1] = g;
             }

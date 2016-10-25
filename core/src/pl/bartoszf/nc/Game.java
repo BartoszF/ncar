@@ -32,11 +32,13 @@ public class Game extends ApplicationAdapter {
 	public Vector2 startPos = new Vector2(100,0);
 
 	Tire t;
-	Car car;
 	List<Car> cars = new ArrayList<Car>();
 	Body track;
 
 	Sim sim;
+
+	List<Car> toDestroy = new ArrayList<Car>();
+	Vector2 po;
 
 	public static Body[] contacts = new Body[5];
 
@@ -58,7 +60,6 @@ public class Game extends ApplicationAdapter {
 
 		createGrounds();
 		loadTrack();
-		car = new Car(world, startPos, null);
 
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.StaticBody;
@@ -95,6 +96,7 @@ public class Game extends ApplicationAdapter {
 					//c.dispose();
 
 					//c = null;
+					toDestroy.add(c);
 				} else if (a.getBody() == track &&
 						(b.getBody().getUserData() != null && b.getBody().getUserData().getClass() == Car.class)) {
 					Body car = contact.getFixtureB().getBody();
@@ -104,6 +106,8 @@ public class Game extends ApplicationAdapter {
 					//c.dispose();
 
 					//c = null;
+
+					toDestroy.add(c);
 				}
 			}
 
@@ -124,11 +128,20 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+		if(sim.gen.getBest() != null && sim.gen.getBest().length > 0) {
+			if(sim.gen.getBest()[0].c != null && sim.gen.getBest()[0].c.body != null)
+				po = sim.gen.getBest()[0].c.body.getPosition();
+		}
+
 		world.step((1.0f/60.0f),6,2);
 
-		sim.step();
+		for(Car c : toDestroy)
+		{
+			c.dispose();
+		}
+		toDestroy.clear();
 
-		Vector2 po = car.body.getPosition();
+		sim.step();
 
 		cam.position.x = (cam.position.x + po.x) / 2;
 		cam.position.y = (cam.position.y + po.y) / 2;

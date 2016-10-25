@@ -11,11 +11,16 @@ public class Genome {
     public NN neuro;
     public float score;
     public boolean running = true;
-    Car c;
+    public Car c;
+    public World world;
+    public Vector2 pos;
+    Vector2 prev, now;
 
     public Genome(int in, int hid, int out, World world, Vector2 pos)
     {
         this.neuro = new NN(in, hid, out);
+        this.world = world;
+        this.pos = pos;
         c = new Car(world,pos,this);
     }
 
@@ -24,15 +29,29 @@ public class Genome {
         this.neuro = new NN(g.neuro);
         this.score = new Float(g.score);
         this.running = true;
+        c = new Car(g.world,g.pos,this);
     }
 
     public void step()
     {
         if(running == false) return;
-        for(int i=0;i<c.inputs.length;i++) {c.inputs[i] = 1;}
-        setInputs(c.inputs);
-        activate();
-        c.update(neuro.outputs[0],neuro.outputs[1]);
+        if(c != null) {
+            if(now != null)
+                prev = new Vector2(now);
+
+            for (int i = 0; i < c.inputs.length; i++) {
+                c.inputs[i] = 1;
+            }
+            setInputs(c.inputs);
+            activate();
+            c.update(neuro.outputs[0], neuro.outputs[1]);
+            now = new Vector2(c.body.getPosition());
+
+            if(prev != null)
+            {
+                score += new Vector2(now).sub(prev).len();
+            }
+        }
     }
 
     public void setInputs(float[] in)
