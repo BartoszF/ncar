@@ -1,4 +1,4 @@
-package pl.bartoszf.nc;
+package pl.bartoszf.ncplus;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -6,9 +6,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
-import pl.bartoszf.nc.car.Car;
-import pl.bartoszf.nc.car.CarMath;
-import pl.bartoszf.nc.car.Constants;
+import pl.bartoszf.ncplus.car.Car;
+import pl.bartoszf.ncplus.car.CarMath;
+import pl.bartoszf.ncplus.car.Constants;
 
 /**
  * Created by Użytkownik on 2016-10-25.
@@ -34,7 +34,6 @@ public class Raycast implements RayCastCallback
         }
 
         Game.contacts[index].setTransform(point,0);
-        //((EdgeShape)Game.contacts[index].getFixtureList().get(0).getShape()).set(car.body.getPosition(),point);
 
         fraction = MathUtils.clamp(fraction,-1.0f,1.0f);
         car.inputs[index] = fraction;

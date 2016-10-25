@@ -1,4 +1,4 @@
-package pl.bartoszf.nc;
+package pl.bartoszf.ncplus;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -10,7 +10,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import pl.bartoszf.nc.car.*;
+import pl.bartoszf.ncplus.car.*;
+import pl.bartoszf.ncplus.neuro.Genome;
+import pl.bartoszf.ncplus.neuro.Sim;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.badlogic.gdx.graphics.GL20.GL_POINTS;
 
@@ -23,24 +29,14 @@ public class Game extends ApplicationAdapter {
 	private OrthographicCamera cam;
 	float drive = 0;
 
+	public Vector2 startPos = new Vector2(100,0);
+
 	Tire t;
 	Car car;
+	List<Car> cars = new ArrayList<Car>();
 	Body track;
 
-	Raycast r;
-	Raycast leftr;
-	Raycast rightr;
-	Raycast sleftr;
-	Raycast srightr;
-
-	Vector2 rcent;
-	Vector2 sec;
-	Vector2 left;
-	Vector2 right;
-	Vector2 sleft;
-	Vector2 sright;
-
-	ShapeRenderer sr;
+	Sim sim;
 
 	public static Body[] contacts = new Body[5];
 
@@ -49,8 +45,9 @@ public class Game extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		world = new World(new Vector2(0, 0), true);
 
-		debugRenderer = new Box2DDebugRenderer(true,false,false,true,false,true);
+		debugRenderer = new Box2DDebugRenderer(true, false, false, true, false, true);
 
+		Gdx.graphics.setWindowedMode(900, 900);
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
@@ -61,19 +58,11 @@ public class Game extends ApplicationAdapter {
 
 		createGrounds();
 		loadTrack();
-		car = new Car(world, new Vector2(100,0));
-
-		r = new Raycast(car, 2);
-		leftr = new Raycast(car, 0);
-		rightr = new Raycast(car, 4);
-		sleftr = new Raycast(car, 1);
-		srightr = new Raycast(car, 3);
-
-		sr = new ShapeRenderer();
+		car = new Car(world, startPos, null);
 
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyDef.BodyType.StaticBody;
-		for(int i=0;i<5;i++)
+		for (int i = 0; i < 5; i++)
 			contacts[i] = world.createBody(bodyDef);
 
 		PolygonShape polygonShape = new PolygonShape();
@@ -84,51 +73,60 @@ public class Game extends ApplicationAdapter {
 		fixtureDef.shape = polygonShape;
 		fixtureDef.isSensor = true;
 		fixtureDef.filter.categoryBits = 0;
-		fixtureDef.filter.maskBits  = 0;
-		for(int i=0;i<5;i++) {
+		fixtureDef.filter.maskBits = 0;
+		for (int i = 0; i < 5; i++) {
 			Fixture fixture = contacts[i].createFixture(fixtureDef);
 		}
+
+		sim = new Sim(world,startPos);
+
+		world.setContactListener(new ContactListener() {
+			@Override
+			public void beginContact(Contact contact) {
+				Fixture a = contact.getFixtureA();
+				Fixture b = contact.getFixtureB();
+				if (((a.getBody().getUserData()!= null && a.getBody().getUserData().getClass() == Car.class) &&
+						b.getBody() == track)
+						) {
+					Body car = contact.getFixtureA().getBody();
+					Car c = (Car) car.getUserData();
+
+					c.genome.end();
+					//c.dispose();
+
+					//c = null;
+				} else if (a.getBody() == track &&
+						(b.getBody().getUserData() != null && b.getBody().getUserData().getClass() == Car.class)) {
+					Body car = contact.getFixtureB().getBody();
+					Car c = (Car) car.getUserData();
+
+					c.genome.end();
+					//c.dispose();
+
+					//c = null;
+				}
+			}
+
+			@Override
+			public void endContact(Contact contact) {
+			}
+
+			@Override
+			public void preSolve(Contact contact, Manifold oldManifold) {
+			}
+
+			@Override
+			public void postSolve(Contact contact, ContactImpulse impulse) {
+			}
+		});
 	}
+
 
 	@Override
 	public void render () {
 		world.step((1.0f/60.0f),6,2);
 
-		for(int i=0;i<5;i++)
-		{
-			car.inputs[i] = 1;
-		}
-
-		float d = 0;
-		float a = 0;
-		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			a = -1;
-		}
-		else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-			a = 1;
-		}
-		else
-		{
-			a = 0;
-		}
-
-		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			d = 1;
-		}
-		else
-		{
-			d = 0;
-		}
-
-		shootRays();
-
-		/*if(drive > 1 || drive <= 0)
-		{
-			drive = 1;
-		}
-		drive = (drive * 2) - 1;
-		System.out.println("Drive : " + drive);*/
-		car.update(d,a);
+		sim.step();
 
 		Vector2 po = car.body.getPosition();
 
@@ -186,29 +184,6 @@ public class Game extends ApplicationAdapter {
 
 		track = world.createBody(bd);
 		loader.attachFixture(track, "Track", fd, 75);
-	}
-
-	private void shootRays()
-	{
-		Vector2 forw = car.body.getWorldVector(new Vector2(0, 1));
-
-		Vector2 cpos = car.body.getPosition();
-		rcent = new Vector2(forw).scl(4).add(cpos);
-		sec = new Vector2(forw).scl(40).add(rcent);
-		left = new Vector2(sec);
-		CarMath.rotate_point(left,rcent,30);
-		right = new Vector2(sec);
-		CarMath.rotate_point(right,rcent,-30);
-		sleft = new Vector2(sec);
-		CarMath.rotate_point(sleft,rcent,15);
-		sright = new Vector2(sec);
-		CarMath.rotate_point(sright,rcent,-15);
-
-		world.rayCast(r, rcent , sec);
-		world.rayCast(leftr, rcent , left);
-		world.rayCast(rightr, rcent , right);
-		world.rayCast(sleftr, rcent , sleft);
-		world.rayCast(srightr, rcent , sright);
 	}
 
 

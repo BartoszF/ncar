@@ -1,4 +1,4 @@
-package pl.bartoszf.nc.car;
+package pl.bartoszf.ncplus.car;
 
 import com.badlogic.gdx.math.Vector2;
 
