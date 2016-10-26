@@ -1,4 +1,4 @@
-package pl.bartoszf.ncplus.car;
+package pl.bartoszf.nc.car;
 
 import java.util.HashSet;
 
@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 public class Tire {
 
 	Body body;
+	Car car;
 	float maxForwardSpeed;
 	float maxBackwardSpeed;
 	float maxDriveForce;
@@ -24,7 +25,7 @@ public class Tire {
 
 	float currentTraction;
 
-	public Tire(World world, Vector2 pos) {
+	public Tire(World world, Vector2 pos, Car c) {
 
 		groundAreas = new Array<GroundAreaType>();
 
@@ -49,6 +50,8 @@ public class Tire {
 		body.setUserData(this);
 		
 		currentTraction = 1;
+
+		this.car = c;
 	}
 
 	public void addGroundArea(GroundAreaType item) {
@@ -142,6 +145,11 @@ public class Tire {
 			force = (-maxDriveForce);
 		} else {
 			return;
+		}
+
+		if(desiredSpeed < 0)
+		{
+			car.genome.score -= 1;
 		}
 		body.applyForce(
 				CarMath.multiply(currentTraction * force, currentForwardNormal),

@@ -1,4 +1,4 @@
-package pl.bartoszf.ncplus;
+package pl.bartoszf.nc;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -6,9 +6,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
-import pl.bartoszf.ncplus.car.Car;
-import pl.bartoszf.ncplus.car.CarMath;
-import pl.bartoszf.ncplus.car.Constants;
+import pl.bartoszf.nc.car.Car;
+import pl.bartoszf.nc.car.CarMath;
+import pl.bartoszf.nc.car.Constants;
 
 /**
  * Created by Użytkownik on 2016-10-25.

@@ -1,7 +1,9 @@
-package pl.bartoszf.ncplus.car;
+package pl.bartoszf.nc.car;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -13,8 +15,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Array;
-import pl.bartoszf.ncplus.Raycast;
-import pl.bartoszf.ncplus.neuro.Genome;
+import pl.bartoszf.nc.Raycast;
+import pl.bartoszf.nc.neuro.Genome;
 
 
 public class Car {
@@ -32,6 +34,8 @@ public class Car {
 	Raycast rightr;
 	Raycast sleftr;
 	Raycast srightr;
+
+	public static List<Car> cars = new ArrayList<Car>();
 
 	public Car(World world, Vector2 pos, Genome g) {
 
@@ -87,7 +91,7 @@ public class Car {
 		float backTireMaxLateralImpulse = 8.5f;
 		float frontTireMaxLateralImpulse = 7.5f;
 
-		Tire tire = new Tire(world, new Vector2(-3,0.75f).add(pos));
+		Tire tire = new Tire(world, new Vector2(-3,0.75f).add(pos), this);
 		tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
 				backTireMaxDriveForce, backTireMaxLateralImpulse);
 		jointDef.bodyB = tire.body;
@@ -95,7 +99,7 @@ public class Car {
 		world.createJoint(jointDef);
 		tires.add(tire);
 
-		tire = new Tire(world, new Vector2(3,0.75f).add(pos));
+		tire = new Tire(world, new Vector2(3,0.75f).add(pos), this);
 		tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
 				backTireMaxDriveForce, backTireMaxLateralImpulse);
 		jointDef.bodyB = tire.body;
@@ -103,7 +107,7 @@ public class Car {
 		world.createJoint(jointDef);
 		tires.add(tire);
 
-		tire = new Tire(world, new Vector2(-3,8.5f).add(pos));
+		tire = new Tire(world, new Vector2(-3,8.5f).add(pos), this);
 		tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
 				frontTireMaxDriveForce, frontTireMaxLateralImpulse);
 		jointDef.bodyB = tire.body;
@@ -111,7 +115,7 @@ public class Car {
 		leftJoint = (RevoluteJoint)world.createJoint(jointDef);
 		tires.add(tire);
 
-		tire = new Tire(world, new Vector2(3,8.5f).add(pos));
+		tire = new Tire(world, new Vector2(3,8.5f).add(pos), this);
 		tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
 				frontTireMaxDriveForce, frontTireMaxLateralImpulse);
 		jointDef.bodyB = tire.body;
@@ -124,6 +128,8 @@ public class Car {
 		rightr = new Raycast(this, 4);
 		sleftr = new Raycast(this, 1);
 		srightr = new Raycast(this, 3);
+
+		cars.add(this);
 	}
 
 
@@ -177,14 +183,17 @@ public class Car {
 
 	public void dispose()
 	{
-		world.destroyBody(body);
+		if(body != null)
+			world.destroyBody(body);
 		for(Tire t: tires)
 		{
-			world.destroyBody(t.body);
-			t.body.setUserData(null);
-			t.body=null;
+			if(t.body != null) {
+				world.destroyBody(t.body);
+				//t.body.setUserData(null);
+				t.body = null;
+			}
 		}
-		body.setUserData(null);
+		//body.setUserData(null);
 		body = null;
 	}
 }

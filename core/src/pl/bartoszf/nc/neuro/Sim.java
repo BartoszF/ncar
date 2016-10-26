@@ -1,8 +1,8 @@
-package pl.bartoszf.ncplus.neuro;
+package pl.bartoszf.nc.neuro;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import pl.bartoszf.ncplus.car.Car;
+import pl.bartoszf.nc.car.Car;
 
 /**
  * Created by Użytkownik on 2016-10-25.
@@ -14,7 +14,7 @@ public class Sim {
 
     public Sim(World world, Vector2 pos)
     {
-        gen = new Generation(49,5,8,2, world, pos);
+        gen = new Generation(49,5,12,5,2, world, pos);
         numRunning = 49;
     }
 
@@ -31,12 +31,30 @@ public class Sim {
             }
         }
 
-        System.out.println(numRunning);
+        //System.out.println(numRunning);
 
         if(numRunning <= 0)
         {
+            for(Car c: Car.cars)
+            {
+                c.dispose();
+            }
+            Car.cars.clear();
             Genome[] best = gen.getBest();
-            gen = new Generation(best[0],best[1],gen.genomes.size());
+            System.out.println("Generation : " + genNum);
+            System.out.println("Best score : " + best[0].getScore());
+            System.out.println("Second best : " + best[1].getScore());
+            best[0].TTL--;
+            best[1].TTL--;
+            Genome f = new Genome(best[0]);
+            Genome s = new Genome(best[1]);
+            Generation gen2 = new Generation(f,s,gen.genomes.size()-2,gen.genomes);
+            for(Genome g: gen.genomes)
+            {
+                g.dispose();
+            }
+            gen = null;
+            gen = gen2;
             genNum++;
             numRunning = gen.genomes.size();
         }

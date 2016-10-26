@@ -1,18 +1,20 @@
-package pl.bartoszf.ncplus;
+package pl.bartoszf.nc;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import pl.bartoszf.ncplus.car.*;
-import pl.bartoszf.ncplus.neuro.Genome;
-import pl.bartoszf.ncplus.neuro.Sim;
+import pl.bartoszf.nc.car.*;
+import pl.bartoszf.nc.neuro.Genome;
+import pl.bartoszf.nc.neuro.Sim;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,9 +44,13 @@ public class Game extends ApplicationAdapter {
 
 	public static Body[] contacts = new Body[5];
 
+	BitmapFont font;
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		font = new BitmapFont();
+		font.setColor(Color.WHITE);
 		world = new World(new Vector2(0, 0), true);
 
 		debugRenderer = new Box2DDebugRenderer(true, false, false, true, false, true);
@@ -107,7 +113,7 @@ public class Game extends ApplicationAdapter {
 
 					//c = null;
 
-					toDestroy.add(c);
+					//toDestroy.add(c);
 				}
 			}
 
@@ -133,13 +139,13 @@ public class Game extends ApplicationAdapter {
 				po = sim.gen.getBest()[0].c.body.getPosition();
 		}
 
-		world.step((1.0f/60.0f),6,2);
+		world.step((1.0f/30.0f),6,2);
 
-		for(Car c : toDestroy)
+		/*for(Car c : toDestroy)
 		{
 			c.dispose();
 		}
-		toDestroy.clear();
+		toDestroy.clear();*/
 
 		sim.step();
 
@@ -153,6 +159,10 @@ public class Game extends ApplicationAdapter {
 		batch.begin();
 
 		debugRenderer.render(world,cam.combined);
+
+		font.draw(batch, "Generation : " + sim.genNum, 10, 10);
+		font.draw(batch, "Drive : " + sim.gen.getBest()[0].neuro.outputs[0], 10, 20);
+		font.draw(batch, "Wheel : " + sim.gen.getBest()[0].neuro.outputs[1], 40, 20);
 
 		batch.end();
 	}
