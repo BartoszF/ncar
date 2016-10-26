@@ -2,7 +2,11 @@ package pl.bartoszf.nc.neuro;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.TimeUtils;
 import pl.bartoszf.nc.car.Car;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Użytkownik on 2016-10-25.
@@ -15,8 +19,9 @@ public class Genome {
     public World world;
     public Vector2 pos;
     Vector2 prev, now;
+    public static List<Genome> genomes = new ArrayList<Genome>();
 
-    public int TTL = 25;
+    public int TTL = 3;
 
     public Genome(int in, int hid, int shid, int out, World world, Vector2 pos)
     {
@@ -24,6 +29,7 @@ public class Genome {
         this.world = world;
         this.pos = pos;
         c = new Car(world,pos,this);
+        genomes.add(this);
     }
 
     public Genome(Genome g)
@@ -33,14 +39,27 @@ public class Genome {
         this.world = g.world;
         this.pos = g.pos;
         this.running = true;
-        this.TTL = g.TTL;
-        c = new Car(g.world,g.pos,this);
+        if(g.TTL < 0)
+            this.TTL = 3;
+        else
+            this.TTL = g.TTL;
+        //c = new Car(g.world,g.pos,this);
+        genomes.add(this);
     }
 
     public void step()
     {
+        if(c == null)
+        {
+            c = new Car(world,pos,this);
+        }
         if(running == false) return;
         if(c != null) {
+            if(TimeUtils.timeSinceMillis(c.start) >= 20000)
+            {
+                this.end();
+                return;
+            }
             if(now != null)
                 prev = new Vector2(now);
 
@@ -54,18 +73,15 @@ public class Genome {
                 {
                     this.score -= 0.3f;
                 }
-                else if(i < 0.4f)
-                {
-                    this.score -= 0.1f;
-                }
             }
             activate();
-            c.update(neuro.outputs[0], neuro.outputs[1]);
+            c.update(neuro.outputs.get(0).val, neuro.outputs.get(1).val);
             now = new Vector2(c.body.getPosition());
 
             if(prev != null)
             {
-                score += new Vector2(now).sub(prev).len();
+                float len = new Vector2(now).sub(prev).len();
+                score+= len;
             }
         }
     }
@@ -74,54 +90,61 @@ public class Genome {
     {
         for(int i=0;i<in.length;i++)
         {
-            neuro.inputs[i] = in[i];
+            neuro.inputs.get(i).val = in[i];
         }
     }
 
     public void activate()
     {
-        for(int h=0;h<neuro.hidden.length;h++)
+        for(Node n: neuro.hidden)
         {
-            float sum = 0;
-            for(int i=0;i<neuro.inputs.length;i++)
-            {
-                sum += neuro.inputs[i] * neuro.conns[h*i];
-            }
-
-            neuro.hidden[h] = (NN.sigmoid(sum) * 2) -1;
+            n.activate();
         }
 
-        int start = neuro.inputs.length * neuro.hidden.length;
-
-        for(int s=0;s<neuro.secHidden.length;s++)
+        for(Node n: neuro.outputs)
         {
-            float sum = 0;
-            for(int i=0;i<neuro.hidden.length;i++)
-            {
-                sum += neuro.hidden[i] * neuro.conns[start+i*s];
-            }
-            neuro.secHidden[s] = (NN.sigmoid(sum)*2) - 1;
+            n.activate();
         }
+    }
 
-        start = neuro.inputs.length * neuro.hidden.length + neuro.hidden.length * neuro.secHidden.length;
+    public void preTrain(float[] inputs, float[] outputs)
+    {
+        float error = 0;
 
-        for(int o=0;o<neuro.outputs.length;o++)
-        {
-            float sum =0;
-            for(int i=0;i<neuro.secHidden.length;i++)
+        do {
+            setInputs(inputs);
+            activate();
+            error = (float)Math.abs((outputs[0] - getOutput()[0].val) + (outputs[1] - getOutput()[1].val));
+            float in = 0;
+            for(float i : inputs)
             {
-                sum+=neuro.secHidden[i] * neuro.conns[start+i*o];
+                in += i;
             }
-            neuro.outputs[o] = (NN.sigmoid(sum) * 2) -1;
-        }
+
+            for(int i=0;i<neuro.conns.size();i++)
+            {
+                neuro.conns.get(i).weight += error * in * 0.1f;
+                activate();
+                error = (outputs[0] - getOutput()[0].val) + (outputs[1] - getOutput()[1].val);
+                if(error < 0.2f) return;
+            }
+        }while(error > 0.2f);
+
+
     }
 
     public Genome crossover(Genome b, int num)
     {
         Genome a = new Genome(this);
-        for(int i=num;i<b.neuro.conns.length;i++)
+        /*for(int i=b.neuro.conns.length/2;i<b.neuro.conns.length;i++)
         {
             a.neuro.conns[i] = new Float(b.neuro.conns[i]);
+        }*/
+
+        for(int i=num; i>0;i--)
+        {
+            int r = (int)(Math.random() * b.neuro.conns.size());
+            a.neuro.conns.get(r).weight = new Float(b.neuro.conns.get(r).weight);
         }
 
         return a;
@@ -129,16 +152,16 @@ public class Genome {
 
     public Genome mutate(double chance)
     {
-        for(int i=0;i<neuro.conns.length;i++)
+        for(int i=0;i<neuro.conns.size();i++)
         {
             double r = Math.random();
             if (r<chance)
             {
-                neuro.conns[i] = ((float)Math.random() * 6) - 3;
+                neuro.conns.get(i).weight = ((float)Math.random() * 6) - 3;
             }
             if(r<0.01f)
             {
-                neuro.conns[i] = 0.0001f;
+                neuro.conns.get(i).weight = 0;
             }
         }
 
@@ -150,16 +173,13 @@ public class Genome {
 
     public void end() {this.running = false;/*this.score -= 5;*/}
 
-    public float[] getOutput()
-    {
-        return neuro.outputs;
+    public Node[] getOutput() {
+        return (Node[])neuro.outputs.toArray();
     }
-
     public void dispose()
     {
-        neuro.conns = null;
-        neuro.inputs = null;
-        neuro.outputs = null;
-        neuro.hidden = null;
+        neuro.dispose();
+        c.dispose();
+        c = null;
     }
 }

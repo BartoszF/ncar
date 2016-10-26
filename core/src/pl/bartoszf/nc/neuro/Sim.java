@@ -1,19 +1,26 @@
 package pl.bartoszf.nc.neuro;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import pl.bartoszf.nc.car.Car;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Użytkownik on 2016-10-25.
  */
 public class Sim {
     public Generation gen;
+    World world;
     public int genNum = 1;
     public int numRunning;
 
     public Sim(World world, Vector2 pos)
     {
+        this.world = world;
         gen = new Generation(49,5,12,5,2, world, pos);
         numRunning = 49;
     }
@@ -35,10 +42,6 @@ public class Sim {
 
         if(numRunning <= 0)
         {
-            for(Car c: Car.cars)
-            {
-                c.dispose();
-            }
             Car.cars.clear();
             Genome[] best = gen.getBest();
             System.out.println("Generation : " + genNum);
@@ -48,7 +51,19 @@ public class Sim {
             best[1].TTL--;
             Genome f = new Genome(best[0]);
             Genome s = new Genome(best[1]);
-            Generation gen2 = new Generation(f,s,gen.genomes.size()-2,gen.genomes);
+            int sle = 0;
+            Array<Body> bodies = new Array<Body>();
+            world.getBodies(bodies);
+            for(Body b: bodies)
+            {
+                if(!b.isAwake()) sle++;
+            }
+            System.out.println("Sleeping : " + sle);
+            System.out.println("Cars : " + Car.cars.size());
+
+            Generation gen2 = new Generation(f,s,gen.genomes.size()-1, this.gen.genomes);
+
+            System.out.println("After : " + Car.cars.size());
             for(Genome g: gen.genomes)
             {
                 g.dispose();

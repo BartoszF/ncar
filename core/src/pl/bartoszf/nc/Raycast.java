@@ -2,12 +2,9 @@ package pl.bartoszf.nc;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import pl.bartoszf.nc.car.Car;
-import pl.bartoszf.nc.car.CarMath;
 import pl.bartoszf.nc.car.Constants;
 
 /**
@@ -33,8 +30,18 @@ public class Raycast implements RayCastCallback
             return -1;
         }
 
-        Game.contacts[index].setTransform(point,0);
-
+        if(index == 0 || index == 1) {
+            if(fraction < 0.4f)
+            {
+                car.genome.score -= 15;
+            }
+            else if((fraction < 0.9f))
+                car.genome.score += 10;
+        }
+        else if(fraction < 0.9f)
+        {
+            car.genome.score -= 10;
+        }
         fraction = MathUtils.clamp(fraction,-1.0f,1.0f);
         car.inputs[index] = fraction;
         return fraction;

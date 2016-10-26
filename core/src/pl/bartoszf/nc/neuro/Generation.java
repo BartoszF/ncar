@@ -2,7 +2,6 @@ package pl.bartoszf.nc.neuro;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import pl.bartoszf.nc.car.Car;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,40 +23,45 @@ public class Generation {
 
     public Generation(Genome a, Genome b, int num, List<Genome> genomes)
     {
+        this.genomes = new ArrayList<Genome>();
         if(a.TTL > 0)
         {
-            this.genomes.add(a);
+            this.genomes.add(new Genome(a));
         }
         else
         {
-            genomes.remove(a);
-            a = new Genome(getBest(genomes)[0]);
-            this.genomes.add(a);
+            System.out.println("Champion died");
+            num++;
         }
 
-        genomes.remove(b);
-        num++;
-        //b = new Genome(getBest(genomes)[0]);
-        //this.genomes.add(b);
-
-        /*if(b.TTL > 0)
-        {
-            this.genomes.add(b);
-        }
-        else {
-            genomes.remove(b);
-            b = new Genome(getBest(genomes)[0]);
-            this.genomes.add(b);
-        }*/
+        System.out.println(num);
 
         for(int i=0;i<num;i++)
         {
             Genome m = new Genome(a);
             m.crossover(b,i);
-            m.mutate(0.4f);
+            m.mutate(0.3f);
 
             this.genomes.add(m);
         }
+
+        List<Genome> toDel = new ArrayList<Genome>();
+        for(Genome g: genomes)
+        {
+            if(!this.genomes.contains(g))
+            {
+                toDel.add(g);
+            }
+        }
+
+        for(Genome g: toDel)
+        {
+            g.dispose();
+            g = null;
+        }
+
+        genomes.clear();
+        toDel.clear();
     }
 
     public Genome[] getBest()

@@ -8,4 +8,5 @@ public class Constants {
 	public static final short GROUND = 4;
 	public static final short TIRE = 8;
 	public static final short WORLD = 16;
+	public static final short CHECKPOINT = 32;
 }

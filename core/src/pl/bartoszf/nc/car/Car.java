@@ -1,8 +1,6 @@
 package pl.bartoszf.nc.car;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
@@ -15,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 import pl.bartoszf.nc.Raycast;
 import pl.bartoszf.nc.neuro.Genome;
 
@@ -34,6 +33,9 @@ public class Car {
 	Raycast rightr;
 	Raycast sleftr;
 	Raycast srightr;
+
+	public int contacts = 0;
+	public long start;
 
 	public static List<Car> cars = new ArrayList<Car>();
 
@@ -70,7 +72,7 @@ public class Car {
 		fixtureDef.shape = polygonShape;
 		fixtureDef.density = 0.1f;
 		fixtureDef.filter.categoryBits = Constants.CAR;
-		fixtureDef.filter.maskBits = Constants.GROUND | Constants.WORLD;
+		fixtureDef.filter.maskBits = Constants.GROUND | Constants.WORLD | Constants.CHECKPOINT;
 		
 		body.createFixture(fixtureDef);
 		body.setTransform(pos,0);
@@ -130,6 +132,8 @@ public class Car {
 		srightr = new Raycast(this, 3);
 
 		cars.add(this);
+
+		start = TimeUtils.millis();
 	}
 
 
@@ -147,7 +151,7 @@ public class Car {
 		float turnPerTimeStep = turnSpeedPerSec / 60.0f;
 		float desiredAngle = 0;
 
-		desiredAngle = lockAngle * -ang;
+		desiredAngle = lockAngle * ang;
 		
 		float angleNow = leftJoint.getJointAngle();
 		float angleToTurn = desiredAngle - angleNow;
@@ -189,11 +193,13 @@ public class Car {
 		{
 			if(t.body != null) {
 				world.destroyBody(t.body);
-				//t.body.setUserData(null);
+				t.body.setUserData(null);
 				t.body = null;
 			}
 		}
-		//body.setUserData(null);
+		body.setUserData(null);
+		Car.cars.remove(this);
+		genome = null;
 		body = null;
 	}
 }

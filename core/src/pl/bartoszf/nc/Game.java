@@ -2,55 +2,40 @@ package pl.bartoszf.nc;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import pl.bartoszf.nc.car.*;
-import pl.bartoszf.nc.neuro.Genome;
 import pl.bartoszf.nc.neuro.Sim;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static com.badlogic.gdx.graphics.GL20.GL_POINTS;
 
 public class Game extends ApplicationAdapter {
 	SpriteBatch batch;
-	Texture img;
 	World world;
 	Box2DDebugRenderer debugRenderer;
-	private float accumulator = 0;
 	private OrthographicCamera cam;
-	float drive = 0;
 
-	public Vector2 startPos = new Vector2(100,0);
+	public Vector2 startPos = new Vector2(115,0);
 
-	Tire t;
-	List<Car> cars = new ArrayList<Car>();
 	Body track;
+	Body[] checkpoints = new Body[8];
 
 	Sim sim;
 
-	List<Car> toDestroy = new ArrayList<Car>();
 	Vector2 po;
-
-	public static Body[] contacts = new Body[5];
 
 	BitmapFont font;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		font = new BitmapFont();
-		font.setColor(Color.WHITE);
 		world = new World(new Vector2(0, 0), true);
 
 		debugRenderer = new Box2DDebugRenderer(true, false, false, true, false, true);
@@ -67,23 +52,7 @@ public class Game extends ApplicationAdapter {
 		createGrounds();
 		loadTrack();
 
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyDef.BodyType.StaticBody;
-		for (int i = 0; i < 5; i++)
-			contacts[i] = world.createBody(bodyDef);
-
-		PolygonShape polygonShape = new PolygonShape();
-		polygonShape.setAsBox(0.5f, 0.5f);
-
-		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.density = 0;
-		fixtureDef.shape = polygonShape;
-		fixtureDef.isSensor = true;
-		fixtureDef.filter.categoryBits = 0;
-		fixtureDef.filter.maskBits = 0;
-		for (int i = 0; i < 5; i++) {
-			Fixture fixture = contacts[i].createFixture(fixtureDef);
-		}
+		createChecks();
 
 		sim = new Sim(world,startPos);
 
@@ -98,23 +67,48 @@ public class Game extends ApplicationAdapter {
 					Body car = contact.getFixtureA().getBody();
 					Car c = (Car) car.getUserData();
 
-					c.genome.end();
-					//c.dispose();
-
-					//c = null;
-					toDestroy.add(c);
+                    c.genome.end();
+					/*if(c.contacts >= 50)
+					{
+						c.genome.end();
+					}
+					else
+					{
+						c.contacts++;
+						//c.genome.score -= 0.5f;
+					}*/
 				} else if (a.getBody() == track &&
 						(b.getBody().getUserData() != null && b.getBody().getUserData().getClass() == Car.class)) {
 					Body car = contact.getFixtureB().getBody();
 					Car c = (Car) car.getUserData();
 
-					c.genome.end();
-					//c.dispose();
-
-					//c = null;
-
-					//toDestroy.add(c);
+                    c.genome.end();
+					/*if(c.contacts >= 50)
+					{
+						c.genome.end();
+					}
+					else
+					{
+						c.contacts++;
+					}*/
 				}
+                if (((a.getBody().getUserData()!= null && a.getBody().getUserData().getClass() == Car.class) &&
+                        (b.getBody().getUserData()!= null && b.getBody().getUserData() == "CH"))
+                        )
+                {
+                    Body car = contact.getFixtureA().getBody();
+                    Car c = (Car) car.getUserData();
+
+                    if(c.genome.running)
+                        c.genome.score+=200;
+                } else if ((a.getBody().getUserData()!= null && a.getBody().getUserData() == "CH") &&
+                        (b.getBody().getUserData() != null && b.getBody().getUserData().getClass() == Car.class)) {
+                    Body car = contact.getFixtureB().getBody();
+                    Car c = (Car) car.getUserData();
+
+                    if(c.genome.running)
+                        c.genome.score+=200;
+                }
 			}
 
 			@Override
@@ -135,22 +129,19 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
 		if(sim.gen.getBest() != null && sim.gen.getBest().length > 0) {
-			if(sim.gen.getBest()[0].c != null && sim.gen.getBest()[0].c.body != null)
+			if(sim.gen.getBest()[0] != null && sim.gen.getBest()[0].c != null && sim.gen.getBest()[0].c.body != null)
 				po = sim.gen.getBest()[0].c.body.getPosition();
 		}
 
 		world.step((1.0f/30.0f),6,2);
 
-		/*for(Car c : toDestroy)
-		{
-			c.dispose();
-		}
-		toDestroy.clear();*/
-
 		sim.step();
 
 		cam.position.x = (cam.position.x + po.x) / 2;
 		cam.position.y = (cam.position.y + po.y) / 2;
+
+		//cam.position.x = (cam.position.x + checkpoints[0].getPosition().x) / 2;
+		//cam.position.y = (cam.position.y + checkpoints[0].getPosition().y) / 2;
 
 		cam.update();
 
@@ -159,10 +150,6 @@ public class Game extends ApplicationAdapter {
 		batch.begin();
 
 		debugRenderer.render(world,cam.combined);
-
-		font.draw(batch, "Generation : " + sim.genNum, 10, 10);
-		font.draw(batch, "Drive : " + sim.gen.getBest()[0].neuro.outputs[0], 10, 20);
-		font.draw(batch, "Wheel : " + sim.gen.getBest()[0].neuro.outputs[1], 40, 20);
 
 		batch.end();
 	}
@@ -191,6 +178,27 @@ public class Game extends ApplicationAdapter {
 		shape.setAsBox(9,  5, new Vector2(5, 20), -40 * Constants.DEGTORAD);
 		groundAreaFixture = ground.createFixture(fixtureDef);
 		groundAreaFixture.setUserData(new GroundAreaType(0.02f, false));
+	}
+
+	private void createChecks()
+	{
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyDef.BodyType.StaticBody;
+		Body check = world.createBody(bodyDef);
+
+		check.setTransform(new Vector2(110,210),0);
+
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(60, 5);
+		FixtureDef fixtureDef = new FixtureDef();
+		fixtureDef.shape = shape;
+		fixtureDef.isSensor = true;
+		fixtureDef.filter.categoryBits = Constants.CHECKPOINT;
+		fixtureDef.filter.maskBits = Constants.CAR;
+		check.createFixture(fixtureDef);
+        check.setUserData("CH");
+
+		checkpoints[0] = check;
 	}
 
 	private void loadTrack(){

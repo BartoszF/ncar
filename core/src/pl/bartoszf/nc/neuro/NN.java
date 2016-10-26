@@ -1,57 +1,121 @@
 package pl.bartoszf.nc.neuro;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Użytkownik on 2016-10-25.
  */
 public class NN {
-    public float[] inputs;
-    public float[] hidden;
-    public float[] secHidden;
-    public float[] outputs;
-    public float[] conns;
+    public List<Node> inputs = new ArrayList<Node>();
+    public List<Node> hidden = new ArrayList<Node>();
+    public List<Node> secHidden = new ArrayList<Node>();
+    public List<Node> outputs = new ArrayList<Node>();
+    public List<Connection> conns = new ArrayList<Connection>();
 
     public NN(int inputs, int hidden, int secHidden, int outputs)
     {
-        this.inputs = new float[inputs];
-        this.hidden = new float[hidden];
-        this.secHidden = new float[secHidden];
-        this.outputs = new float[outputs];
-        this.conns = new float[hidden*inputs + hidden* secHidden + secHidden*outputs];
-        for(int i =0; i<hidden*inputs + hidden* secHidden + secHidden*outputs;i++)
+        for(int i=0;i<inputs;i++)
         {
-            this.conns[i] = ((float)Math.random() * 6) - 3;
+            this.inputs.add(new Node());
+        }
+        for(int i=0;i<outputs;i++)
+        {
+            this.outputs.add(new Node());
+        }
+
+        for(int i=0;i<hidden;i++)
+        {
+            Node n = new Node();
+            this.hidden.add(n);
+
+            for(int in=0;in<inputs;in++)
+            {
+                Connection c = new Connection();
+                conns.add(c);
+
+                Node inp = this.inputs.get(in);
+                c.left = inp;
+                c.right = n;
+                inp.outputs.add(c);
+                n.inputs.add(c);
+            }
+            for(int in=0;in<outputs;in++)
+            {
+                Connection c = new Connection();
+                conns.add(c);
+
+                Node inp = this.outputs.get(in);
+                c.left = n;
+                c.right = inp;
+                inp.inputs.add(c);
+                n.inputs.add(c);
+            }
+        }
+
+        for(Connection c : conns)
+        {
+            c.weight = ((float)(Math.random()) * 6 )-3;
         }
     }
 
     public NN(NN n)
     {
-        this.inputs = new float[n.inputs.length];
-        for(int i=0;i<inputs.length;i++)
+        this.inputs = new ArrayList<Node>(n.inputs);
+        this.outputs = new ArrayList<Node>(n.outputs);
+        this.hidden = new ArrayList<Node>(n.hidden);
+        this.secHidden = new ArrayList<Node>(n.secHidden);
+
+        for(int i=0;i<n.hidden.size();i++)
         {
-            this.inputs[i] = new Float(n.inputs[i]);
+            Node hi = this.hidden.get(i);
+
+
+            for(int in=0;in<this.inputs.size();in++)
+            {
+                Connection c = new Connection();
+                conns.add(c);
+
+                Node inp = this.inputs.get(in);
+                c.left = inp;
+                c.right = hi;
+                inp.outputs.add(c);
+                hi.inputs.add(c);
+            }
+            for(int in=0;in<this.outputs.size();in++)
+            {
+                Connection c = new Connection();
+                conns.add(c);
+
+                Node inp = this.outputs.get(in);
+                c.left = hi;
+                c.right = inp;
+                inp.inputs.add(c);
+                hi.inputs.add(c);
+            }
         }
-        this.outputs = new float[n.outputs.length];
-        for(int i=0;i<outputs.length;i++)
+
+        for(int c = 0;c<n.conns.size();c++)
         {
-            this.outputs[i] = new Float(n.outputs[i]);
+            this.conns.get(c).weight = new Float(n.conns.get(c).weight);
         }
-        this.secHidden = new float[n.secHidden.length];
-        for(int i=0;i<secHidden.length;i++)
+    }
+
+    public void dispose()
+    {
+        /*for(Node n:inputs)
         {
-            this.secHidden[i] = new Float(n.secHidden[i]);
+            n.dispose();
         }
-        this.hidden = new float[n.hidden.length];
-        for(int i=0;i<hidden.length;i++)
+        for(Node n:hidden)
         {
-            this.hidden[i] = new Float(n.hidden[i]);
+            n.dispose();
         }
-        this.conns = new float[n.conns.length];
-        for(int i=0;i<conns.length;i++)
+        for(Node n:outputs)
         {
-            this.conns[i] = new Float(n.conns[i]);
-        }
+            n.dispose();
+        }*/
     }
 
     @Override
@@ -59,20 +123,20 @@ public class NN {
     {
         String val="";
         val += "Inputs : \n";
-        val += Arrays.toString(inputs);
+        val += inputs;
         val += "\nHidden : \n";
-        val += Arrays.toString(hidden);
+        val += hidden;
         val += "\nOutputs : \n";
-        val += Arrays.toString(outputs);
+        val += outputs;
         val += "\nConns : \n";
-        val += Arrays.toString(conns);
+        val += conns;
         val += "\nConns length : \n";
-        val += conns.length;
+        val += conns.size();
 
         return val;
     }
 
-    public static float sigmoid(double x) {
-        return (1/( 1 + (float)Math.pow((float)Math.E,(-1*x))));
+    public static float sigmoid(float x) {
+        return ((1/( 1 + (float)Math.pow((float)Math.E,(-1*x)))) * 2)-1;
     }
 }
