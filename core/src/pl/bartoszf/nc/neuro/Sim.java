@@ -38,40 +38,39 @@ public class Sim {
             }
         }
 
-        //System.out.println(numRunning);
-
         if(numRunning <= 0)
         {
-            Car.cars.clear();
             Genome[] best = gen.getBest();
-            System.out.println("Generation : " + genNum);
-            System.out.println("Best score : " + best[0].getScore());
-            System.out.println("Second best : " + best[1].getScore());
-            best[0].TTL--;
-            best[1].TTL--;
-            Genome f = new Genome(best[0]);
-            Genome s = new Genome(best[1]);
-            int sle = 0;
-            Array<Body> bodies = new Array<Body>();
-            world.getBodies(bodies);
-            for(Body b: bodies)
-            {
-                if(!b.isAwake()) sle++;
-            }
-            System.out.println("Sleeping : " + sle);
-            System.out.println("Cars : " + Car.cars.size());
+            if(best.length == 2) {
+                System.out.println("Generation : " + genNum);
+                System.out.println("Best score : " + best[0].getScore());
+                System.out.println("Second best : " + best[1].getScore());
+                best[0].TTL--;
+                best[1].TTL--;
+                Genome f = new Genome(best[0]);
+                Genome s = new Genome(best[1]);
+                int sle = 0;
+                Array<Body> bodies = new Array<Body>();
+                world.getBodies(bodies);
+                for (Body b : bodies) {
+                    if (!b.isAwake()) sle++;
+                }
+                System.out.println("Sleeping : " + sle);
+                System.out.println("Cars : " + Car.cars.size());
 
-            Generation gen2 = new Generation(f,s,gen.genomes.size()-1, this.gen.genomes);
+                Generation gen2 = new Generation(f, s, gen.genomes.size() - 1, this.gen.genomes);
 
-            System.out.println("After : " + Car.cars.size());
-            for(Genome g: gen.genomes)
-            {
-                g.dispose();
+                System.out.println("After : " + Car.cars.size());
+                for (Genome g : gen.genomes) {
+                    g.dispose();
+                }
+                gen = null;
+                gen = gen2;
+                genNum++;
+                numRunning = gen.genomes.size();
             }
-            gen = null;
-            gen = gen2;
-            genNum++;
-            numRunning = gen.genomes.size();
+            else
+                System.out.println(best.length);
         }
     }
 

@@ -45,7 +45,7 @@ public class Generation {
             this.genomes.add(m);
         }
 
-        List<Genome> toDel = new ArrayList<Genome>();
+        /*List<Genome> toDel = new ArrayList<Genome>();
         for(Genome g: genomes)
         {
             if(!this.genomes.contains(g))
@@ -61,7 +61,7 @@ public class Generation {
         }
 
         genomes.clear();
-        toDel.clear();
+        toDel.clear();*/
     }
 
     public Genome[] getBest()

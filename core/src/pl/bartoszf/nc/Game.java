@@ -129,9 +129,13 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void render () {
 		if(sim.gen.getBest() != null && sim.gen.getBest().length > 0) {
-			if(sim.gen.getBest()[0] != null && sim.gen.getBest()[0].c != null && sim.gen.getBest()[0].c.body != null)
-				po = sim.gen.getBest()[0].c.body.getPosition();
+			if(sim.gen.getBest()[0] != null && sim.gen.getBest()[0].c != null && sim.gen.getBest()[0].c.body != null) {
+				Car c = sim.gen.getBest()[0].c;
+				po = c.body.getPosition();
+			}
 		}
+
+		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
 
 		world.step((1.0f/30.0f),6,2);
 

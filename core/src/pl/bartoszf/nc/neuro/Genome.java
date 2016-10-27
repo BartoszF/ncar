@@ -53,7 +53,13 @@ public class Genome {
         {
             c = new Car(world,pos,this);
         }
-        if(running == false) return;
+        if(running == false)
+        {
+            if(c != null) {
+                c.update(0,0);
+            }
+            return;
+        }
         if(c != null) {
             if(TimeUtils.timeSinceMillis(c.start) >= 20000)
             {
@@ -63,9 +69,9 @@ public class Genome {
             if(now != null)
                 prev = new Vector2(now);
 
-            for (int i = 0; i < c.inputs.length; i++) {
+            /*for (int i = 0; i < c.inputs.length; i++) {
                 c.inputs[i] = 1;
-            }
+            }*/
             setInputs(c.inputs);
             for(float i:c.inputs)
             {
@@ -77,6 +83,7 @@ public class Genome {
             activate();
             c.update(neuro.outputs.get(0).val, neuro.outputs.get(1).val);
             now = new Vector2(c.body.getPosition());
+            score += 0.01f;
 
             if(prev != null)
             {
@@ -136,16 +143,16 @@ public class Genome {
     public Genome crossover(Genome b, int num)
     {
         Genome a = new Genome(this);
-        /*for(int i=b.neuro.conns.length/2;i<b.neuro.conns.length;i++)
+        for(int i=num;i<b.neuro.conns.size();i++)
         {
-            a.neuro.conns[i] = new Float(b.neuro.conns[i]);
-        }*/
+            a.neuro.conns.get(i).weight = new Float(b.neuro.conns.get(i).weight);
+        }
 
-        for(int i=num; i>0;i--)
+        /*for(int i=num; i>0;i--)
         {
             int r = (int)(Math.random() * b.neuro.conns.size());
             a.neuro.conns.get(r).weight = new Float(b.neuro.conns.get(r).weight);
-        }
+        }*/
 
         return a;
     }
@@ -169,7 +176,7 @@ public class Genome {
     }
 
     public void addScore(float s) {this.score += s;}
-    public float getScore() {return score;}
+    public float getScore() {return score > 0 ? score : 0;}
 
     public void end() {this.running = false;/*this.score -= 5;*/}
 

@@ -24,13 +24,15 @@ public class Raycast implements RayCastCallback
     public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction)
     {
         car.inputs[index] = 1;
+        car.genome.neuro.inputs.get(index).val = 1;
         if(fixture.getFilterData().categoryBits != Constants.WORLD)
         {
             car.inputs[index] = 1;
+            car.genome.neuro.inputs.get(index).val = 1;
             return -1;
         }
 
-        if(index == 0 || index == 1) {
+        /*if(index == 0 || index == 1) {
             if(fraction < 0.4f)
             {
                 car.genome.score -= 15;
@@ -41,9 +43,10 @@ public class Raycast implements RayCastCallback
         else if(fraction < 0.9f)
         {
             car.genome.score -= 10;
-        }
+        }*/
         fraction = MathUtils.clamp(fraction,-1.0f,1.0f);
         car.inputs[index] = fraction;
+        car.genome.neuro.inputs.get(index).val = fraction;
         return fraction;
     }
 }

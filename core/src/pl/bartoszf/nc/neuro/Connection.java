@@ -20,20 +20,24 @@ public class Connection {
     public Connection(Node left, Node right, float weight)
     {
         this.left = left;
+        this.left.outputs.add(this);
         this.right = right;
+        this.right.inputs.add(this);
         this.weight = weight;
     }
 
     public Connection(Connection c)
     {
-        this.left = c.left;
-        this.right = c.right;
+        this.left = new Node(c.left);
+        this.left.outputs.add(this);
+        this.right = new Node(c.right);
+        this.right.inputs.add(this);
         this.weight = new Float(c.weight);
     }
 
     public void dispose()
     {
-        this.left = null;
-        this.right = null;
+        //this.left = null;
+        //this.right = null;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 public class NN {
     public List<Node> inputs = new ArrayList<Node>();
     public List<Node> hidden = new ArrayList<Node>();
-    public List<Node> secHidden = new ArrayList<Node>();
+    //public List<Node> secHidden = new ArrayList<Node>();
     public List<Node> outputs = new ArrayList<Node>();
     public List<Connection> conns = new ArrayList<Connection>();
 
@@ -62,10 +62,23 @@ public class NN {
 
     public NN(NN n)
     {
-        this.inputs = new ArrayList<Node>(n.inputs);
-        this.outputs = new ArrayList<Node>(n.outputs);
-        this.hidden = new ArrayList<Node>(n.hidden);
-        this.secHidden = new ArrayList<Node>(n.secHidden);
+        this.inputs = new ArrayList<Node>();
+        this.outputs = new ArrayList<Node>();
+        this.hidden = new ArrayList<Node>();
+
+        for(Node i: n.inputs)
+        {
+            this.inputs.add(new Node());
+        }
+        for(Node i: n.hidden)
+        {
+            this.hidden.add(new Node());
+        }
+        for(Node i: n.outputs)
+        {
+            this.outputs.add(new Node());
+        }
+        //this.secHidden = new ArrayList<Node>(n.secHidden);
 
         for(int i=0;i<n.hidden.size();i++)
         {
@@ -74,25 +87,15 @@ public class NN {
 
             for(int in=0;in<this.inputs.size();in++)
             {
-                Connection c = new Connection();
-                conns.add(c);
-
                 Node inp = this.inputs.get(in);
-                c.left = inp;
-                c.right = hi;
-                inp.outputs.add(c);
-                hi.inputs.add(c);
+                Connection c = new Connection(inp,hi,0);
+                conns.add(c);
             }
             for(int in=0;in<this.outputs.size();in++)
             {
-                Connection c = new Connection();
-                conns.add(c);
-
                 Node inp = this.outputs.get(in);
-                c.left = hi;
-                c.right = inp;
-                inp.inputs.add(c);
-                hi.inputs.add(c);
+                Connection c = new Connection(hi,inp,0);
+                conns.add(c);
             }
         }
 
@@ -132,6 +135,19 @@ public class NN {
         val += conns;
         val += "\nConns length : \n";
         val += conns.size();
+
+        return val;
+    }
+
+    public String shortString()
+    {
+        String val="";
+        val += "Inputs : \n";
+        val += inputs;
+        val += "\nHidden : \n";
+        val += hidden;
+        val += "\nOutputs : \n";
+        val += outputs;
 
         return val;
     }

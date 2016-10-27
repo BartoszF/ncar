@@ -160,6 +160,8 @@ public class Car {
 		
 		leftJoint.setLimits(newAngle, newAngle);
 		rightJoint.setLimits(newAngle, newAngle);
+
+		shootRays();
 	}
 
 	private void shootRays()
