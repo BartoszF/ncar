@@ -40,7 +40,7 @@ public class Genome {
         this.pos = g.pos;
         this.running = true;
         if(g.TTL < 0)
-            this.TTL = 3;
+            this.TTL = 8;
         else
             this.TTL = g.TTL;
         //c = new Car(g.world,g.pos,this);
@@ -82,16 +82,17 @@ public class Genome {
             }
             float vel = c.body.getLinearVelocity().len();
             float ratio = vel/c.maxForwardSpeed;
-            neuro.inputs.get(5).val = ratio;
+            neuro.inputs.get(7).val = ratio;
             activate();
             c.update(neuro.outputs.get(0).val, neuro.outputs.get(1).val);
             now = new Vector2(c.body.getPosition());
-            score += 0.01f;
+            //score += 0.01f;
 
             if(prev != null)
             {
                 float len = new Vector2(now).sub(prev).len();
                 float k = c.kier;
+                if(k<0) k/=2;
                 score = score + (len * k);
             }
         }
@@ -161,6 +162,18 @@ public class Genome {
                 a.neuro.conns.get(r).weight = new Float(temp);
                 used.add(temp);
                 rest--;
+            }
+
+            if(rest == 1)
+            {
+                for(Connection c: b.neuro.conns)
+                {
+                    if(!used.contains(c))
+                    {
+                        a.neuro.conns.get(num).weight = c.weight;
+                        rest--;
+                    }
+                }
             }
         }while(rest > 0);
         /*for(int i=num; i>0;i--)

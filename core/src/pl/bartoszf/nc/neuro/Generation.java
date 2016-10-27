@@ -34,8 +34,6 @@ public class Generation {
             num++;
         }
 
-        System.out.println(num);
-
         for(int i=0;i<num;i++)
         {
             Genome m = new Genome(a);

@@ -36,12 +36,12 @@ public class Car {
 	Raycast srightr;
 	Raycast lefts;
 	Raycast rights;
-	Raycast back;
+	//Raycast back;
 
-	public float maxForwardSpeed = 400;
+	public float maxForwardSpeed = 200;
 	public float maxBackwardSpeed = -40;
 	public float backTireMaxDriveForce = 300;
-	public float frontTireMaxDriveForce = 700;
+	public float frontTireMaxDriveForce = 100;
 	public float backTireMaxLateralImpulse = 8.5f;
 	public float frontTireMaxLateralImpulse = 7.5f;
 
@@ -138,7 +138,7 @@ public class Car {
 		srightr = new Raycast(this, 3);
 		lefts = new Raycast(this, 5);
 		rights = new Raycast(this, 6);
-		back = new Raycast(this, 7);
+		//back = new Raycast(this, 7);
 
 		cars.add(this);
 
