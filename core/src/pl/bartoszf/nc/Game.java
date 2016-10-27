@@ -22,6 +22,7 @@ public class Game extends ApplicationAdapter {
 	Box2DDebugRenderer debugRenderer;
 	private OrthographicCamera cam;
 
+
 	public Vector2 startPos = new Vector2(115,0);
 
 	Body track;
@@ -30,13 +31,15 @@ public class Game extends ApplicationAdapter {
 	Sim sim;
 
 	Vector2 po;
-
 	BitmapFont font;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		world = new World(new Vector2(0, 0), true);
+
+		font = new BitmapFont();
+		font.setColor(Color.WHITE);
 
 		debugRenderer = new Box2DDebugRenderer(true, false, false, true, false, true);
 
@@ -52,7 +55,7 @@ public class Game extends ApplicationAdapter {
 		createGrounds();
 		loadTrack();
 
-		createChecks();
+		//createChecks();
 
 		sim = new Sim(world,startPos);
 
@@ -154,6 +157,14 @@ public class Game extends ApplicationAdapter {
 		batch.begin();
 
 		debugRenderer.render(world,cam.combined);
+
+
+		batch.end();
+
+		batch.begin();
+
+		font.draw(batch, "Generation : " + sim.genNum, 10, 465);
+		//debugRenderer.render(world,cam.combined);
 
 		batch.end();
 	}

@@ -3,6 +3,7 @@ package pl.bartoszf.nc.car;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -33,6 +34,18 @@ public class Car {
 	Raycast rightr;
 	Raycast sleftr;
 	Raycast srightr;
+	Raycast lefts;
+	Raycast rights;
+	Raycast back;
+
+	public float maxForwardSpeed = 400;
+	public float maxBackwardSpeed = -40;
+	public float backTireMaxDriveForce = 300;
+	public float frontTireMaxDriveForce = 700;
+	public float backTireMaxLateralImpulse = 8.5f;
+	public float frontTireMaxLateralImpulse = 7.5f;
+
+	public float kier = 0;
 
 	public int contacts = 0;
 	public long start;
@@ -86,13 +99,6 @@ public class Car {
 		jointDef.upperAngle = 0;
 		jointDef.localAnchorB.setZero();
 
-		float maxForwardSpeed = 400;
-		float maxBackwardSpeed = -40;
-		float backTireMaxDriveForce = 300;
-		float frontTireMaxDriveForce = 700;
-		float backTireMaxLateralImpulse = 8.5f;
-		float frontTireMaxLateralImpulse = 7.5f;
-
 		Tire tire = new Tire(world, new Vector2(-3,0.75f).add(pos), this);
 		tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed,
 				backTireMaxDriveForce, backTireMaxLateralImpulse);
@@ -130,6 +136,9 @@ public class Car {
 		rightr = new Raycast(this, 4);
 		sleftr = new Raycast(this, 1);
 		srightr = new Raycast(this, 3);
+		lefts = new Raycast(this, 5);
+		rights = new Raycast(this, 6);
+		back = new Raycast(this, 7);
 
 		cars.add(this);
 
@@ -139,6 +148,10 @@ public class Car {
 
 
 	public void update(float dr, float ang) {
+
+		dr = MathUtils.clamp(dr,-1,1);
+		ang = MathUtils.clamp(ang,-1,1);
+		this.kier = 0;
 		for (Tire tire : tires) {
 			tire.updateFriction();
 		}

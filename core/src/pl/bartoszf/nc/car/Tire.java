@@ -149,7 +149,11 @@ public class Tire {
 
 		if(desiredSpeed < 0)
 		{
-			car.genome.score -= 1;
+			car.kier = (car.kier - 1) /2;
+		}
+		else
+		{
+			car.kier = (car.kier + 1) /2;
 		}
 		body.applyForce(
 				CarMath.multiply(currentTraction * force, currentForwardNormal),

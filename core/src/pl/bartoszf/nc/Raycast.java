@@ -35,14 +35,14 @@ public class Raycast implements RayCastCallback
         /*if(index == 0 || index == 1) {
             if(fraction < 0.4f)
             {
-                car.genome.score -= 15;
+                car.genome.score -= 0.15;
             }
             else if((fraction < 0.9f))
-                car.genome.score += 10;
+                car.genome.score += 0.10;
         }
         else if(fraction < 0.9f)
         {
-            car.genome.score -= 10;
+            car.genome.score -= 0.10;
         }*/
         fraction = MathUtils.clamp(fraction,-1.0f,1.0f);
         car.inputs[index] = fraction;

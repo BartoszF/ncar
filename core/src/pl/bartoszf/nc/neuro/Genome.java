@@ -80,6 +80,9 @@ public class Genome {
                     this.score -= 0.3f;
                 }
             }
+            float vel = c.body.getLinearVelocity().len();
+            float ratio = vel/c.maxForwardSpeed;
+            neuro.inputs.get(5).val = ratio;
             activate();
             c.update(neuro.outputs.get(0).val, neuro.outputs.get(1).val);
             now = new Vector2(c.body.getPosition());
@@ -88,7 +91,8 @@ public class Genome {
             if(prev != null)
             {
                 float len = new Vector2(now).sub(prev).len();
-                score+= len;
+                float k = c.kier;
+                score = score + (len * k);
             }
         }
     }
@@ -143,11 +147,22 @@ public class Genome {
     public Genome crossover(Genome b, int num)
     {
         Genome a = new Genome(this);
-        for(int i=num;i<b.neuro.conns.size();i++)
+        /*for(int i=num;i<b.neuro.conns.size();i++)
         {
             a.neuro.conns.get(i).weight = new Float(b.neuro.conns.get(i).weight);
-        }
+        }*/
 
+        int rest = num;
+        List<Float> used = new ArrayList<Float>();
+        do {
+            int r = (int)(Math.random() * b.neuro.conns.size());
+            float temp = b.neuro.conns.get(r).weight;
+            if(!used.contains(temp)) {
+                a.neuro.conns.get(r).weight = new Float(temp);
+                used.add(temp);
+                rest--;
+            }
+        }while(rest > 0);
         /*for(int i=num; i>0;i--)
         {
             int r = (int)(Math.random() * b.neuro.conns.size());
@@ -164,9 +179,9 @@ public class Genome {
             double r = Math.random();
             if (r<chance)
             {
-                neuro.conns.get(i).weight = ((float)Math.random() * 6) - 3;
+                neuro.conns.get(i).weight *= ((float)Math.random() * 2) - 1;
             }
-            if(r<0.01f)
+            if(r<0.01f || r>0.99f)
             {
                 neuro.conns.get(i).weight = 0;
             }

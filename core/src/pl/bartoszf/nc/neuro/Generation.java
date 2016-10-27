@@ -40,7 +40,7 @@ public class Generation {
         {
             Genome m = new Genome(a);
             m.crossover(b,i);
-            m.mutate(0.3f);
+            m.mutate(0.05f);
 
             this.genomes.add(m);
         }
