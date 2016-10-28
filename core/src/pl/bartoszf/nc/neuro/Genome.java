@@ -155,26 +155,30 @@ public class Genome {
 
         int rest = num;
         List<Float> used = new ArrayList<Float>();
+        int iter = 0;
         do {
             int r = (int)(Math.random() * b.neuro.conns.size());
             float temp = b.neuro.conns.get(r).weight;
             if(!used.contains(temp)) {
                 a.neuro.conns.get(r).weight = new Float(temp);
                 used.add(temp);
-                rest--;
+                iter = 0;
+                continue;
             }
 
-            if(rest == 1)
+            if(iter > 10)
             {
                 for(Connection c: b.neuro.conns)
                 {
                     if(!used.contains(c))
                     {
-                        a.neuro.conns.get(num).weight = c.weight;
+                        int ra = (int)(Math.random() * b.neuro.conns.size());
+                        a.neuro.conns.get(ra).weight = c.weight;
                         rest--;
                     }
                 }
             }
+            iter++;
         }while(rest > 0);
         /*for(int i=num; i>0;i--)
         {

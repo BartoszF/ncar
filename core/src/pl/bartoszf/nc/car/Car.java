@@ -38,11 +38,11 @@ public class Car {
 	Raycast rights;
 	//Raycast back;
 
-	public float maxForwardSpeed = 200;
+	public float maxForwardSpeed = 800;
 	public float maxBackwardSpeed = -40;
-	public float backTireMaxDriveForce = 300;
+	public float backTireMaxDriveForce = 400;
 	public float frontTireMaxDriveForce = 100;
-	public float backTireMaxLateralImpulse = 8.5f;
+	public float backTireMaxLateralImpulse = 10.5f;
 	public float frontTireMaxLateralImpulse = 7.5f;
 
 	public float kier = 0;
