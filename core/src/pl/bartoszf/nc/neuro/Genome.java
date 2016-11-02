@@ -21,9 +21,9 @@ public class Genome {
     Vector2 prev, now;
     public static List<Genome> genomes = new ArrayList<Genome>();
 
-    public Genome(int in, int hid, int shid, int out, World world, Vector2 pos)
+    public Genome(int in, int hid, int out, World world, Vector2 pos)
     {
-        this.neuro = new NN(in, hid,shid, out);
+        this.neuro = new NN(in, hid, out);
         this.world = world;
         this.pos = pos;
         c = new Car(world,pos,this);

@@ -13,11 +13,11 @@ public class Generation {
     public List<Genome> genomes = new ArrayList<Genome>();
     public Vector2 pos;
 
-    public Generation(int num, int in, int hid, int shid, int out, World world, Vector2 pos)
+    public Generation(int num, int in, int hid, int out, World world, Vector2 pos)
     {
         for(int i=0;i<num;i++)
         {
-            genomes.add(new Genome(in,hid,shid,out,world, pos));
+            genomes.add(new Genome(in,hid,out,world, pos));
         }
     }
 
@@ -36,8 +36,10 @@ public class Generation {
 
             this.genomes.add(m);
         }
-        this.genomes.add(new Genome(a));
-        this.genomes.add(new Genome(b));
+        //this.genomes.add(new Genome(a));
+        //this.genomes.add(new Genome(b));
+        this.genomes.add(a);
+        this.genomes.add(b);
 
         /*List<Genome> toDel = new ArrayList<Genome>();
         for(Genome g: genomes)

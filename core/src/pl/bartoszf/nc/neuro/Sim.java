@@ -21,7 +21,7 @@ public class Sim {
     public Sim(World world, Vector2 pos)
     {
         this.world = world;
-        gen = new Generation(30,8,14,5,2, world, pos);
+        gen = new Generation(30,8,14,2, world, pos);
         numRunning = 30;
     }
 

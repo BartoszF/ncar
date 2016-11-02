@@ -10,11 +10,10 @@ import java.util.List;
 public class NN {
     public List<Node> inputs = new ArrayList<Node>();
     public List<Node> hidden = new ArrayList<Node>();
-    //public List<Node> secHidden = new ArrayList<Node>();
     public List<Node> outputs = new ArrayList<Node>();
     public List<Connection> conns = new ArrayList<Connection>();
 
-    public NN(int inputs, int hidden, int secHidden, int outputs)
+    public NN(int inputs, int hidden, int outputs)
     {
         for(int i=0;i<inputs;i++)
         {
@@ -25,38 +24,13 @@ public class NN {
             this.outputs.add(new Node());
         }
 
-        for(int i=0;i<hidden;i++)
+        for(int i=0;i<inputs;i++)
         {
-            Node n = new Node();
-            this.hidden.add(n);
-
-            for(int in=0;in<inputs;in++)
+            for(int o=0;o<outputs;o++)
             {
-                Connection c = new Connection();
+                Connection c = new Connection(this.inputs.get(i),this.outputs.get(o),(float)(Math.random() * 6)-3);
                 conns.add(c);
-
-                Node inp = this.inputs.get(in);
-                c.left = inp;
-                c.right = n;
-                inp.outputs.add(c);
-                n.inputs.add(c);
             }
-            for(int in=0;in<outputs;in++)
-            {
-                Connection c = new Connection();
-                conns.add(c);
-
-                Node inp = this.outputs.get(in);
-                c.left = n;
-                c.right = inp;
-                inp.inputs.add(c);
-                n.inputs.add(c);
-            }
-        }
-
-        for(Connection c : conns)
-        {
-            c.weight = ((float)(Math.random()) * 6 )-3;
         }
     }
 
@@ -68,22 +42,20 @@ public class NN {
 
         for(Node i: n.inputs)
         {
-            this.inputs.add(new Node());
+            this.inputs.add(new Node(i));
         }
         for(Node i: n.hidden)
         {
-            this.hidden.add(new Node());
+            this.hidden.add(new Node(i));
         }
         for(Node i: n.outputs)
         {
-            this.outputs.add(new Node());
+            this.outputs.add(new Node(i));
         }
-        //this.secHidden = new ArrayList<Node>(n.secHidden);
 
         for(int i=0;i<n.hidden.size();i++)
         {
             Node hi = this.hidden.get(i);
-
 
             for(int in=0;in<this.inputs.size();in++)
             {
@@ -95,6 +67,15 @@ public class NN {
             {
                 Node inp = this.outputs.get(in);
                 Connection c = new Connection(hi,inp,0);
+                conns.add(c);
+            }
+        }
+
+        for(int i=0;i<this.inputs.size();i++)
+        {
+            for(int o=0;o<this.outputs.size();o++)
+            {
+                Connection c = new Connection(this.inputs.get(i),this.outputs.get(o),(float)(Math.random() * 6)-3);
                 conns.add(c);
             }
         }

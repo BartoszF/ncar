@@ -10,16 +10,20 @@ public class Node {
     public float val;
     public List<Connection> inputs = new ArrayList<Connection>();
     public List<Connection> outputs = new ArrayList<Connection>();
+    public int id;
+    public static int lastId = 0;
 
     public Node()
     {
+        this.id = lastId++;
     }
 
     public Node(Node n)
     {
         this.val = n.val;
-        this.inputs = new ArrayList<Connection>(n.inputs);
-        this.outputs = new ArrayList<Connection>(n.outputs);
+        this.id = n.id;
+        //this.inputs = new ArrayList<Connection>(n.inputs);
+        //this.outputs = new ArrayList<Connection>(n.outputs);
     }
 
     public void dispose()
