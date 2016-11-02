@@ -24,24 +24,20 @@ public class Generation {
     public Generation(Genome a, Genome b, int num, List<Genome> genomes)
     {
         this.genomes = new ArrayList<Genome>();
-        if(a.TTL > 0)
-        {
-            this.genomes.add(new Genome(a));
-        }
-        else
-        {
-            System.out.println("Champion died");
-            num++;
-        }
+        num--;
 
         for(int i=0;i<num;i++)
         {
             Genome m = new Genome(a);
+
             m.crossover(b,i);
-            m.mutate(0.05f);
+            m.mutate(0.2f);
+
 
             this.genomes.add(m);
         }
+        this.genomes.add(new Genome(a));
+        this.genomes.add(new Genome(b));
 
         /*List<Genome> toDel = new ArrayList<Genome>();
         for(Genome g: genomes)

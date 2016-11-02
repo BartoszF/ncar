@@ -21,8 +21,8 @@ public class Sim {
     public Sim(World world, Vector2 pos)
     {
         this.world = world;
-        gen = new Generation(60,8,14,5,2, world, pos);
-        numRunning = 60;
+        gen = new Generation(30,8,14,5,2, world, pos);
+        numRunning = 30;
     }
 
     public void step()
@@ -45,8 +45,6 @@ public class Sim {
                 System.out.println("Generation : " + genNum);
                 System.out.println("Best score : " + best[0].getScore());
                 System.out.println("Second best : " + best[1].getScore());
-                best[0].TTL--;
-                best[1].TTL--;
                 Genome f = new Genome(best[0]);
                 Genome s = new Genome(best[1]);
                 int sle = 0;

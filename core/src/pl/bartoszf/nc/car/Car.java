@@ -23,7 +23,7 @@ public class Car {
 	public Body body;
 	Array<Tire> tires;
 	RevoluteJoint leftJoint, rightJoint;
-	public float[] inputs = new float[5];
+	public float[] inputs = new float[8];
 	World world;
 	public Genome genome;
 
@@ -36,7 +36,7 @@ public class Car {
 	Raycast srightr;
 	Raycast lefts;
 	Raycast rights;
-	//Raycast back;
+	Raycast back;
 
 	public float maxForwardSpeed = 800;
 	public float maxBackwardSpeed = -40;
@@ -138,7 +138,7 @@ public class Car {
 		srightr = new Raycast(this, 3);
 		lefts = new Raycast(this, 5);
 		rights = new Raycast(this, 6);
-		//back = new Raycast(this, 7);
+		back = new Raycast(this, 7);
 
 		cars.add(this);
 
@@ -192,12 +192,18 @@ public class Car {
 		CarMath.rotate_point(sleft,rcent,15);
 		Vector2 sright = new Vector2(sec);
 		CarMath.rotate_point(sright,rcent,-15);
+		Vector2 slefts = new Vector2(sec);
+		CarMath.rotate_point(sleft,rcent,90);
+		Vector2 srights = new Vector2(sec);
+		CarMath.rotate_point(sright,rcent,-90);
 
 		world.rayCast(r, rcent , sec);
 		world.rayCast(leftr, rcent , left);
 		world.rayCast(rightr, rcent , right);
 		world.rayCast(sleftr, rcent , sleft);
 		world.rayCast(srightr, rcent , sright);
+		world.rayCast(lefts, rcent , slefts);
+		world.rayCast(rights, rcent , srights);
 	}
 
 	public void dispose()

@@ -21,15 +21,13 @@ public class Genome {
     Vector2 prev, now;
     public static List<Genome> genomes = new ArrayList<Genome>();
 
-    public int TTL = 3;
-
     public Genome(int in, int hid, int shid, int out, World world, Vector2 pos)
     {
         this.neuro = new NN(in, hid,shid, out);
         this.world = world;
         this.pos = pos;
         c = new Car(world,pos,this);
-        genomes.add(this);
+        //genomes.add(this);
     }
 
     public Genome(Genome g)
@@ -39,12 +37,8 @@ public class Genome {
         this.world = g.world;
         this.pos = g.pos;
         this.running = true;
-        if(g.TTL < 0)
-            this.TTL = 8;
-        else
-            this.TTL = g.TTL;
         //c = new Car(g.world,g.pos,this);
-        genomes.add(this);
+        //genomes.add(this);
     }
 
     public void step()
@@ -196,11 +190,8 @@ public class Genome {
             double r = Math.random();
             if (r<chance)
             {
-                neuro.conns.get(i).weight *= ((float)Math.random() * 2) - 1;
-            }
-            if(r<0.01f || r>0.99f)
-            {
-                neuro.conns.get(i).weight = 0;
+                //neuro.conns.get(i).weight *= ((float)Math.random() * 2) - 1;
+                neuro.conns.get(i).weight = ((float)Math.random() * 6) - 3;
             }
         }
 
