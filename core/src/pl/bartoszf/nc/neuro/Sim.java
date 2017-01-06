@@ -45,8 +45,8 @@ public class Sim {
                 System.out.println("Generation : " + genNum);
                 System.out.println("Best score : " + best[0].getScore());
                 System.out.println("Second best : " + best[1].getScore());
-                best[0].TTL--;
-                best[1].TTL--;
+                //best[0].TTL--;
+                //best[1].TTL--;
                 Genome f = new Genome(best[0]);
                 Genome s = new Genome(best[1]);
                 int sle = 0;

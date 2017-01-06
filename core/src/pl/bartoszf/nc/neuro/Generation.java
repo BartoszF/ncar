@@ -24,15 +24,15 @@ public class Generation {
     public Generation(Genome a, Genome b, int num, List<Genome> genomes)
     {
         this.genomes = new ArrayList<Genome>();
-        if(a.TTL > 0)
-        {
+        //if(a.TTL > 0)
+        //{
             this.genomes.add(new Genome(a));
-        }
-        else
+        //}
+        /*else
         {
             System.out.println("Champion died");
             num++;
-        }
+        }*/
 
         for(int i=0;i<num;i++)
         {
@@ -42,24 +42,6 @@ public class Generation {
 
             this.genomes.add(m);
         }
-
-        /*List<Genome> toDel = new ArrayList<Genome>();
-        for(Genome g: genomes)
-        {
-            if(!this.genomes.contains(g))
-            {
-                toDel.add(g);
-            }
-        }
-
-        for(Genome g: toDel)
-        {
-            g.dispose();
-            g = null;
-        }
-
-        genomes.clear();
-        toDel.clear();*/
     }
 
     public Genome[] getBest()
